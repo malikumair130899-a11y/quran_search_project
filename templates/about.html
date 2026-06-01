@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About Al-Bayan - The Intelligent Quran Search Project">
+    <title>About Al-Bayan | FYP Project</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Lateef&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Amiri', 'serif'],
+                        'quran': ['Lateef', 'serif'],
+                        'urdu': ['Noto Nastaliq Urdu', 'serif'],
+                        'sans': ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f2fcf5', 100: '#e1f8e8', 200: '#c3edd4', 300: '#95dbb6',
+                            400: '#5ec092', 500: '#38a375', 600: '#28825c', 700: '#23684b',
+                            800: '#1f533e', 900: '#1a4435', 950: '#0e261e',
+                        },
+                        gold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .glass-card {
+            background: rgba(31, 41, 55, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px);
+            color: #38a375;
+            /* brand-500 */
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors duration-300">
+
+    {% include 'navbar.html' %}
+
+    <main class="flex-grow pt-16">
+
+        <!-- Hero Section -->
+        <section
+            class="relative bg-gradient-to-b from-brand-50 to-white dark:from-brand-950 dark:to-gray-900 py-20 px-4 overflow-hidden">
+            <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+                style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+            </div>
+
+            <div class="max-w-4xl mx-auto relative z-10 text-center animate-slide-up">
+                <span
+                    class="inline-block py-1 px-3 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-600 dark:text-brand-300 text-xs font-bold tracking-wider mb-6 border border-brand-200 dark:border-brand-800">FINAL
+                    YEAR PROJECT</span>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 font-arabic text-gray-900 dark:text-white leading-tight">
+                    Innovating Quranic Search
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Al-Bayan leverages modern Natural Language Processing to help you explore divine wisdom beyond
+                    simple keyword matching.
+                </p>
+            </div>
+        </section>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+
+            <!-- Problem & Solution -->
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-24 animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white border-l-4 border-brand-500 pl-4">The
+                        Problem & Solution</h2>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
+                        Traditional digital Quran tools rely on <strong>exact keyword matching</strong>. If a user
+                        searches for "Stress," they might miss verses that mention "anxiety," "fear," or "hardship"
+                        simply because the exact word "Stress" isn't in the translation.
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
+                        <strong>Al-Bayan</strong> solves this using <span
+                            class="text-brand-600 dark:text-brand-400 font-bold">Semantic Search</span>. By converting
+                        verses into vector embeddings, our system understands the <em>context</em> and <em>meaning</em>
+                        of your query, retrieving relevant verses even if they don't share a single word with your
+                        search term.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl relative border border-gray-100 dark:border-gray-700">
+                    <div class="absolute -top-4 -right-4 w-20 h-20 bg-brand-500 opacity-10 rounded-full blur-xl"></div>
+                    <h3 class="font-bold text-xl mb-6 text-gray-800 dark:text-white">Technology Pipeline</h3>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            <div class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 p-2 rounded">1</div>
+                            <div class="text-sm dark:text-gray-300">User Query: "How to deal with sadness?"</div>
+                        </div>
+                        <div class="flex justify-center text-gray-400"><svg class="w-5 h-5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                            </svg></div>
+                        <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            <div class="bg-purple-100 dark:bg-purple-900/50 text-purple-600 p-2 rounded">2</div>
+                            <div class="text-sm dark:text-gray-300">AI Model generates Vector Embeddings</div>
+                        </div>
+                        <div class="flex justify-center text-gray-400"><svg class="w-5 h-5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                            </svg></div>
+                        <div
+                            class="flex items-center gap-4 p-3 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-lg">
+                            <div class="bg-brand-100 dark:bg-brand-900 text-brand-600 p-2 rounded">3</div>
+                            <div class="text-sm dark:text-gray-300">Result: "Verily, with hardship comes ease" (94:6)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAILED ABOUT SECTION -->
+            <div class="mb-24">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">The Vision Behind Al-Bayan</h2>
+                    <div class="h-1 w-20 bg-brand-500 mx-auto rounded-full"></div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Motivation -->
+                    <div
+                        class="glass-card p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-brand-50 dark:border-gray-700">
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-brand-500">
+                            <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-brand-600 dark:text-brand-400 mb-4 flex items-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Motivation
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">
+                            The primary motivation for this Final Year Project was to bridge the gap between traditional
+                            Islamic scholarship and modern <strong>Artificial Intelligence</strong>. In an era of
+                            information overload, finding specific guidance in the Quran requires more than just
+                            skimming text—it requires understanding. Al-Bayan aims to make the Quran more accessible to
+                            non-Arabic speakers and researchers by allowing them to search using natural concepts rather
+                            than rigid keywords.
+                        </p>
+                    </div>
+
+                    <!-- Methodology -->
+                    <div
+                        class="glass-card p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-brand-50 dark:border-gray-700">
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-blue-500">
+                            <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4 flex items-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                            Methodology
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">
+                            We moved beyond standard Regular Expressions (Regex) by implementing <strong>Cosine
+                                Similarity</strong> on high-dimensional vector spaces. Using pre-trained BERT-based
+                            models (specifically <code>all-MiniLM-L6-v2</code>), we convert every verse into a dense
+                            numerical vector. When a user queries, we calculate the geometric distance between the query
+                            vector and verse vectors, ranking results by semantic closeness rather than text overlap.
+                        </p>
+                    </div>
+
+                    <!-- Future Scope -->
+                    <div
+                        class="glass-card p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-brand-50 dark:border-gray-700">
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-purple-500">
+                            <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                </path>
+                            </svg>
+                            Future Scope
+                        </h3>
+                        <ul class="text-gray-600 dark:text-gray-300 space-y-2 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="mt-1 w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
+                                <span><strong>Voice Search Integration:</strong> Allowing users to recite or speak
+                                    queries.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="mt-1 w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
+                                <span><strong>Multi-lingual Support:</strong> Expanding semantic search to Urdu and
+                                    Arabic directly.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="mt-1 w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
+                                <span><strong>Contextual Tafsir Chatbot:</strong> An AI assistant to explain verses
+                                    conversationally.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Built With -->
+            <div class="mb-24">
+                <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-10">Built With</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div
+                        class="glass-card p-6 rounded-xl text-center hover:shadow-lg transition-all border border-transparent hover:border-brand-200 dark:hover:border-brand-800">
+                        <div
+                            class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg mx-auto flex items-center justify-center mb-3 text-green-600 text-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">Python Flask</h3>
+                        <p class="text-xs text-gray-500 mt-2">Backend Framework</p>
+                    </div>
+                    <div
+                        class="glass-card p-6 rounded-xl text-center hover:shadow-lg transition-all border border-transparent hover:border-brand-200 dark:hover:border-brand-800">
+                        <div
+                            class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg mx-auto flex items-center justify-center mb-3 text-yellow-600 text-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">TF-IDF & BERT</h3>
+                        <p class="text-xs text-gray-500 mt-2">NLP Models</p>
+                    </div>
+                    <div
+                        class="glass-card p-6 rounded-xl text-center hover:shadow-lg transition-all border border-transparent hover:border-brand-200 dark:hover:border-brand-800">
+                        <div
+                            class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto flex items-center justify-center mb-3 text-blue-600 text-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">Tailwind CSS</h3>
+                        <p class="text-xs text-gray-500 mt-2">Frontend Styling</p>
+                    </div>
+                    <div
+                        class="glass-card p-6 rounded-xl text-center hover:shadow-lg transition-all border border-transparent hover:border-brand-200 dark:hover:border-brand-800">
+                        <div
+                            class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg mx-auto flex items-center justify-center mb-3 text-gray-600 text-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">JSON</h3>
+                        <p class="text-xs text-gray-500 mt-2">Structured Data</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEVELOPER SECTION -->
+            <section class="max-w-4xl mx-auto mb-24 relative z-10">
+                <div
+                    class="glass-card rounded-3xl p-8 md:p-12 border border-brand-100 dark:border-gray-700 flex flex-col md:flex-row items-center gap-8 md:gap-12 hover:shadow-xl transition-shadow duration-300">
+
+                    <!-- Developer Image -->
+                    <div class="relative shrink-0 group">
+                        <div
+                            class="w-40 h-40 md:w-48 md:h-48 rounded-2xl p-1 bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                            <img src="/static/images/profile.png" alt="Quran"
+                                class="w-full h-full object-cover rounded-xl border-4 border-white dark:border-gray-800 bg-white">
+                        </div>
+                        <div
+                            class="absolute -bottom-3 -right-3 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700">
+                            <span class="text-2xl">👨‍💻</span>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="text-center md:text-left flex-1">
+                        <span
+                            class="inline-block py-1 px-3 rounded-full bg-brand-50 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 text-xs font-bold tracking-wider mb-3 border border-brand-100 dark:border-brand-800 uppercase">Meet
+                            the Developer</span>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">MUHAMMAD HASEEB & UMAIR MALIK</h2>
+                        <p class="text-gray-500 dark:text-gray-400 font-medium mb-5 text-lg">Full Stack Developer & AI
+                            Enthusiast</p>
+
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
+                            MUHAMMAD HASEEB & UMAIR MALIK is a dedicated Software Engineering student with a profound passion for Artificial
+                            Intelligence and Full Stack Development. With a keen eye for detail and a drive to solve
+                            real-world problems, he developed Al-Bayan to bridge the gap between traditional Islamic
+                            scholarship and modern technology. His expertise spans Python, machine learning algorithms,
+                            and modern frontend frameworks, allowing him to craft seamless, intelligent web experiences.
+                        </p>
+
+                        <!-- Social Links -->
+                        <div class="flex items-center justify-center md:justify-start gap-5">
+                            <a href="https://github.com/mohd-ali10" class="social-icon text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                title="GitHub">
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd"
+                                        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </a>
+                            <a href="https://www.linkedin.com/in/mohdali1/" class="social-icon text-gray-400 hover:text-blue-600" title="LinkedIn">
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                </svg>
+                            </a>
+                            <a href="aliskdse@email.com" class="social-icon text-gray-400 hover:text-red-500"
+                                title="Email">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final CTA -->
+            <div
+                class="glass rounded-3xl p-8 md:p-12 border border-brand-100 dark:border-gray-800 relative overflow-hidden text-center">
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-200 to-transparent dark:from-brand-900/30 opacity-50 rounded-full blur-3xl -mr-16 -mt-16">
+                </div>
+                <div
+                    class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-200 to-transparent dark:from-blue-900/30 opacity-50 rounded-full blur-3xl -ml-10 -mb-10">
+                </div>
+
+                <div class="relative z-10 max-w-2xl mx-auto">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Ready to Explore?</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-8">
+                        Experience the power of semantic search and discover the Quran's wisdom like never before.
+                    </p>
+                    <a href="/"
+                        class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-brand-600 hover:bg-brand-700 md:py-4 md:text-lg shadow-lg hover:shadow-brand-500/30 transition-all transform hover:-translate-y-1">
+                        Start Searching Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+
+    <script>
+        // Theme Logic
+        const themeToggle = document.getElementById('theme-toggle');
+
+        // 1. Load saved theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // 2. Toggle listener
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</body>
+
+</html>

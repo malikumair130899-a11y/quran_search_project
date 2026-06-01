@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Read {{ surah.name }} - Al-Bayan Quran Search">
+    <title>Surah {{ surah.name }} | Al-Bayan</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Lateef&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    // This MUST run before the body loads to prevent flashing
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Amiri', 'serif'],
+                        'quran': ['Lateef', 'serif'],
+                        'urdu': ['Noto Nastaliq Urdu', 'serif'],
+                        'sans': ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f2fcf5',
+                            100: '#e1f8e8',
+                            200: '#c3edd4',
+                            300: '#95dbb6',
+                            400: '#5ec092',
+                            500: '#38a375',
+                            600: '#28825c',
+                            700: '#23684b',
+                            800: '#1f533e',
+                            900: '#1a4435',
+                            950: '#0e261e',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .glass-card {
+            background: rgba(31, 41, 55, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Ayah Ornament Styling */
+        .ayah-number-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+        }
+
+        .ayah-ornament {
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0.15;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            transform: rotate(45deg);
+        }
+
+        /* Playing State */
+        .playing-ayah {
+            border-left: 4px solid #38a375;
+            background: rgba(56, 163, 117, 0.08) !important;
+        }
+
+        .dark .playing-ayah {
+            background: rgba(56, 163, 117, 0.15) !important;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(0.95);
+            }
+        }
+
+        .is-loading {
+            animation: pulse-soft 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors duration-300">
+
+    {% include 'navbar.html' %}
+
+    <main class="flex-grow pt-28 pb-24 px-4 max-w-5xl mx-auto w-full">
+
+        <header class="text-center mb-16 space-y-6 animate-slide-up">
+            <div class="inline-flex flex-col items-center">
+                <span
+                    class="inline-block py-1 px-3 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold tracking-widest uppercase mb-4 border border-brand-200 dark:border-brand-800">
+                    Surah {{ surah.id }} • {{ surah.type }} • {{ surah.verses }} Verses
+                </span>
+                <h1 class="text-6xl md:text-7xl font-arabic text-gray-900 dark:text-white mb-2 leading-tight">
+                    {{ surah.ar }}
+                </h1>
+                <h2 class="text-2xl font-light text-gray-500 dark:text-gray-400">{{ surah.translation }} ({{ surah.name
+                    }})</h2>
+            </div>
+
+            {% if surah.id != 9 %}
+            <div class="py-10 flex justify-center">
+                <div class="glass px-10 py-6 rounded-2xl border-t border-b border-brand-500/20">
+                    <p
+                        class="text-4xl md:text-5xl font-arabic text-gray-800 dark:text-gray-200 opacity-90 leading-relaxed">
+                        بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </header>
+
+        <div id="verses-container" class="space-y-6 animate-slide-up" style="animation-delay: 0.1s;">
+
+            <div class="flex justify-end mb-4">
+                <button onclick="toggleAllTranslations()"
+                    class="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors">
+                    Toggle All Translations
+                </button>
+            </div>
+
+            {% for verse in verses %}
+            <div id="ayah-{{ verse.ayah_number }}"
+                class="verse-card glass-card p-6 md:p-10 rounded-2xl transition-all duration-300 hover:shadow-xl border border-transparent hover:border-brand-200 dark:hover:border-brand-900 group">
+
+                <div class="flex justify-between items-start mb-8">
+                    <div class="ayah-number-wrap text-brand-600 dark:text-brand-400">
+                        <div class="ayah-ornament"></div>
+                        <span class="text-sm font-bold relative z-10">{{ verse.ayah_number }}</span>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="toggleTranslation(this)"
+                            class="trans-btn p-2 text-gray-400 hover:text-brand-500 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Show/Hide Translation">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                            </svg>
+                        </button>
+
+                        <button onclick="copyVerse(this)"
+                            data-text="{{ verse.text if verse.text else verse.text_ar }} {{ verse.english }} ({{ surah.name }} {{ surah.id }}:{{ verse.ayah_number }})"
+                            class="p-2 text-gray-400 hover:text-brand-500 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Copy Ayah">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                            </svg>
+                        </button>
+
+                        <button onclick="playVerse(this)" data-surah="{{ surah.id }}"
+                            data-ayah="{{ verse['ayah_number'] }}"
+                            class="audio-btn p-2 text-brand-600 bg-brand-100 dark:bg-brand-900/40 rounded-full hover:bg-brand-200 dark:hover:bg-brand-800 transition-all hover:scale-105 shadow-sm">
+                            <svg class="w-5 h-5 play-icon ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                            </svg>
+                            <svg class="w-5 h-5 pause-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-right mb-4 px-2">
+                    <p class="font-arabic leading-[2.5] text-gray-800 dark:text-gray-100 text-3xl md:text-4xl">
+                        {{ verse.text if verse.text else verse.text_ar }}
+                    </p>
+                </div>
+
+                <div
+                    class="translations-box hidden opacity-0 transition-all duration-300 ease-in-out border-t border-gray-100 dark:border-gray-800 pt-8 mt-8 space-y-6">
+                    <div>
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 block mb-2 opacity-80">English</span>
+                        <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-sans">{{ verse.english
+                            }}</p>
+                    </div>
+
+                    {% if verse.urdu %}
+                    <div class="text-right" dir="rtl">
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 block mb-2 opacity-80">Urdu</span>
+                        <p class="text-xl font-urdu text-gray-600 dark:text-gray-400 leading-loose">{{ verse.urdu }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-20 pt-10 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center animate-slide-up"
+            style="animation-delay: 0.2s;">
+            {% if surah.id > 1 %}
+            <a href="/surah/{{ surah.id - 1 }}"
+                class="group flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl transition-all">
+                <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+                <div class="text-left">
+                    <span class="block text-xs opacity-75 uppercase tracking-wide">Previous</span>
+                    <span class="font-medium">Surah {{ surah.id - 1 }}</span>
+                </div>
+            </a>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            {% if surah.id < 114 %} <a href="/surah/{{ surah.id + 1 }}"
+                class="group flex items-center gap-3 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-all shadow-lg shadow-brand-500/30">
+                <div class="text-right">
+                    <span class="block text-xs opacity-75 uppercase tracking-wide">Next</span>
+                    <span class="font-medium">Surah {{ surah.id + 1 }}</span>
+                </div>
+                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+                </a>
+                {% endif %}
+        </div>
+
+    </main>
+
+    {% include 'footer.html' %}
+
+    <audio id="main-audio"></audio>
+
+    <script>
+        const audioPlayer = document.getElementById('main-audio');
+
+        // Initial Theme Check
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // ==========================================
+        // NEW FUNCTION: Toggle Translation Visibility
+        // ==========================================
+        function toggleTranslation(btn) {
+            // Find the closest verse card
+            const card = btn.closest('.verse-card');
+            // Find the translations container inside it
+            const transBox = card.querySelector('.translations-box');
+
+            // Toggle Logic
+            if (transBox.classList.contains('hidden')) {
+                // Show it
+                transBox.classList.remove('hidden');
+                // Small delay to allow CSS transition to catch the opacity change
+                setTimeout(() => {
+                    transBox.classList.remove('opacity-0');
+                }, 10);
+                // Highlight button
+                btn.classList.add('text-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+            } else {
+                // Hide it
+                transBox.classList.add('opacity-0');
+                setTimeout(() => {
+                    transBox.classList.add('hidden');
+                }, 300); // Wait for fade out
+                // Remove highlight
+                btn.classList.remove('text-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+            }
+        }
+
+        // Helper to toggle ALL translations at once
+        function toggleAllTranslations() {
+            const allBoxes = document.querySelectorAll('.translations-box');
+            const isAnyHidden = Array.from(allBoxes).some(box => box.classList.contains('hidden'));
+
+            const allBtns = document.querySelectorAll('.trans-btn');
+
+            allBoxes.forEach((box, index) => {
+                if (isAnyHidden) {
+                    box.classList.remove('hidden');
+                    setTimeout(() => box.classList.remove('opacity-0'), 10);
+                    allBtns[index].classList.add('text-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+                } else {
+                    box.classList.add('opacity-0');
+                    setTimeout(() => box.classList.add('hidden'), 300);
+                    allBtns[index].classList.remove('text-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+                }
+            });
+        }
+
+
+        // ==========================================
+        // Existing Audio & Copy Logic
+        // ==========================================
+        function playVerse(btn) {
+            const surah = btn.getAttribute('data-surah');
+            const ayah = btn.getAttribute('data-ayah');
+
+            if (!surah || !ayah) return;
+
+            const pad = (n) => n.toString().padStart(3, '0');
+            const url = `https://www.everyayah.com/data/Alafasy_128kbps/${pad(surah)}${pad(ayah)}.mp3`;
+
+            const allBtns = document.querySelectorAll('.audio-btn');
+            const allCards = document.querySelectorAll('.verse-card');
+            const currentCard = document.getElementById(`ayah-${ayah}`);
+
+            if (audioPlayer.src === url) {
+                if (!audioPlayer.paused) {
+                    audioPlayer.pause();
+                    return;
+                } else {
+                    audioPlayer.play();
+                    return;
+                }
+            }
+
+            allBtns.forEach(b => {
+                b.querySelector('.play-icon').classList.remove('hidden');
+                b.querySelector('.pause-icon').classList.add('hidden');
+                b.classList.remove('bg-brand-200', 'scale-105');
+            });
+            allCards.forEach(c => c.classList.remove('playing-ayah'));
+
+            audioPlayer.src = url;
+            btn.classList.add('is-loading');
+
+            audioPlayer.play().catch(e => console.error("Audio Play Error:", e));
+
+            audioPlayer.onplaying = () => {
+                btn.classList.remove('is-loading');
+                btn.querySelector('.play-icon').classList.add('hidden');
+                btn.querySelector('.pause-icon').classList.remove('hidden');
+                btn.classList.add('bg-brand-200', 'scale-105');
+                if (currentCard) currentCard.classList.add('playing-ayah');
+            };
+
+            audioPlayer.onpause = () => {
+                btn.querySelector('.play-icon').classList.remove('hidden');
+                btn.querySelector('.pause-icon').classList.add('hidden');
+                btn.classList.remove('is-loading');
+            };
+
+            audioPlayer.onended = () => {
+                btn.querySelector('.play-icon').classList.remove('hidden');
+                btn.querySelector('.pause-icon').classList.add('hidden');
+                btn.classList.remove('bg-brand-200', 'scale-105');
+                if (currentCard) currentCard.classList.remove('playing-ayah');
+
+                const nextAyah = parseInt(ayah) + 1;
+                const nextBtn = document.querySelector(`button[data-surah="${surah}"][data-ayah="${nextAyah}"]`);
+                if (nextBtn) playVerse(nextBtn);
+            };
+        }
+
+        function copyVerse(btn) {
+            const text = btn.getAttribute('data-text');
+            navigator.clipboard.writeText(text).then(() => {
+                const originalSvg = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-5 h-5 text-brand-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
+                setTimeout(() => btn.innerHTML = originalSvg, 2000);
+            });
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

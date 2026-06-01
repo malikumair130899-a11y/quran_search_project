@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Advanced Quran Search Engine with Semantic Analysis. Find verses in Arabic, English, and Urdu.">
+    <title>Al-Bayan | Intelligent Quran Search</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Lateef&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Amiri', 'serif'],
+                        'quran': ['Lateef', 'serif'],
+                        'urdu': ['Noto Nastaliq Urdu', 'serif'],
+                        'sans': ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f2fcf5',
+                            100: '#e1f8e8',
+                            200: '#c3edd4',
+                            300: '#95dbb6',
+                            400: '#5ec092',
+                            500: '#38a375',
+                            600: '#28825c',
+                            700: '#23684b',
+                            800: '#1f533e',
+                            900: '#1a4435',
+                            950: '#0e261e',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .dark .glass-card {
+            background: rgba(31, 41, 55, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Quran Text Utilities */
+        .arabic-text {
+            line-height: 2.5;
+            direction: rtl;
+        }
+
+        .urdu-text {
+            line-height: 2.2;
+            direction: rtl;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            appearance: none;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #38a375;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #4b5563;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-40 glass shadow-sm transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='/'">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center text-white shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <span
+                            class="font-bold text-xl tracking-tight text-brand-800 dark:text-brand-400">Al-Bayan</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 -mt-1 uppercase tracking-wider">Quran
+                            Search</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="app.showPage('home')"
+                        class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Home</button>
+                    <button onclick="app.showPage('surahs')"
+                        class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Browse
+                        Surahs</button>
+                    <button onclick="bookmarksPanel.toggle()"
+                        class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors flex items-center gap-1">
+                        <span>Bookmarks</span>
+                        <span id="nav-bookmark-count"
+                            class="bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 text-xs px-2 py-0.5 rounded-full hidden">0</span>
+                    </button>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <button onclick="settingsModal.toggle()"
+                        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
+                        aria-label="Settings">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
+                        aria-label="Toggle Theme">
+                        <svg class="w-6 h-6 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-16">
+
+        <!-- HOME / SEARCH PAGE -->
+        <div id="page-home" class="page-section">
+            <!-- Hero Section with Server-Side Form -->
+            <section
+                class="relative bg-gradient-to-b from-brand-50 to-white dark:from-brand-950 dark:to-gray-900 pb-12 pt-10 px-4 overflow-hidden">
+                <!-- Decorative Pattern -->
+                <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+                    style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+                </div>
+
+                <div class="max-w-4xl mx-auto relative z-10 text-center">
+                    <h1
+                        class="text-5xl md:text-7xl font-bold mb-6 font-arabic text-gray-900 dark:text-white leading-tight animate-slide-up">
+                        القرآن الكريم
+                    </h1>
+
+                    <p class="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed animate-slide-up"
+                        style="animation-delay: 0.1s">
+                        Explore the divine wisdom through advanced semantic search.
+                    </p>
+
+                    <!-- Server-Side Form -->
+                    <div class="bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 max-w-3xl mx-auto transform transition-all hover:scale-[1.01] animate-slide-up"
+                        style="animation-delay: 0.2s">
+                        <form method="POST" id="search-form" class="flex flex-col md:flex-row gap-2">
+                            <div class="relative flex-grow group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-6 w-6 text-gray-400 group-focus-within:text-brand-500 transition-colors"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <!-- Templated Value -->
+                                <input type="text" name="query" id="search-input" value="{{ query }}"
+                                    class="block w-full pl-12 pr-12 py-4 bg-transparent border-none text-lg focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400"
+                                    placeholder="Search verses (e.g. Mercy, Jannah)..." required autocomplete="off">
+
+                                <button type="button" id="voice-btn"
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gray-400 hover:text-brand-600 transition-colors"
+                                    title="Voice Search">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 px-2 md:px-0">
+                                <!-- Templated Select -->
+                                <select name="mode" id="search-mode"
+                                    class="bg-gray-50 dark:bg-gray-700 border-none rounded-xl py-3 pl-4 pr-8 text-sm focus:ring-2 focus:ring-brand-500 text-gray-700 dark:text-gray-200 cursor-pointer h-full">
+                                    <option value="semantic" {% if mode=='semantic' %}selected{% endif %}>Semantic (AI)
+                                    </option>
+                                    <option value="tfidf" {% if mode=='tfidf' %}selected{% endif %}>Exact Match</option>
+
+                                </select>
+                                <button type="submit"
+                                    class="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-brand-500/30 h-full w-full md:w-auto">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tags (Optional client-side helper) -->
+                    <div class="mt-6 flex flex-wrap justify-center gap-2 animate-slide-up"
+                        style="animation-delay: 0.3s">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">Popular:</span>
+                        <button onclick="app.setQuery('Zakat')"
+                            class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 hover:border-brand-500 hover:text-brand-600 transition-colors">Zakat</button>
+                        <button onclick="app.setQuery('Ramadan')"
+                            class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 hover:border-brand-500 hover:text-brand-600 transition-colors">Ramadan</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SERVER SIDE RESULTS LOGIC -->
+            <section id="results-section" class="max-w-6xl mx-auto px-4 pb-20 mt-8">
+                {% if results %}
+                <div
+                    class="flex justify-between items-end mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 animate-fade-in">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Search Results</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Found <span
+                                class="font-bold text-brand-600">{{ results|length }}</span> matches for "<span
+                                class="italic">{{ query }}</span>"</p>
+                    </div>
+                </div>
+
+                <div id="results-container" class="space-y-6">
+                    {% for verse, score in results %}
+                    <div
+                        class="glass-card rounded-2xl p-6 md:p-8 animate-fade-in border-l-4 border-brand-500 hover:shadow-xl transition-all">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                                    Surah {{ verse.surah }} : Ayah {{ verse.ayah_number }}
+                                </span>
+                                <!-- Using JS for bookmark persistence locally -->
+                                <button onclick="bookmarksPanel.add('{{ verse.surah }}', '{{ verse.ayah_number }}')"
+                                    class="text-gray-400 hover:text-gold-500 transition-colors" title="Bookmark">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                    </svg>
+                                </button>
+                                <span
+                                    class="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Match:
+                                    {{ "%.1f"|format(score * 100) }}%</span>
+                            </div>
+                            <button onclick="app.playAudio('{{ verse.text }}')"
+                                class="text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/30 p-2 rounded-full transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Quran Text -->
+                        <div class="text-right mb-6">
+                            <p
+                                class="text-3xl md:text-4xl lg:text-5xl font-arabic leading-relaxed text-gray-800 dark:text-gray-100 arabic-content">
+                                {{ verse.text }}</p>
+                        </div>
+
+                        <!-- Translations -->
+                        <div class="space-y-4">
+                            <div class="translation-english">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase mb-1">English</h4>
+                                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed translation-content">
+                                    {{ verse.english }}</p>
+                            </div>
+                            <div class="translation-urdu text-right">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase mb-1">Urdu</h4>
+                                <p
+                                    class="text-xl font-urdu text-gray-700 dark:text-gray-300 leading-relaxed translation-content">
+                                    {{ verse.urdu }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div
+                            class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 text-sm font-medium">
+                            <button onclick="app.copyText('{{ verse.text }}', '{{ verse.english }}')"
+                                class="text-gray-500 hover:text-brand-600 flex items-center gap-2 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% elif query %}
+                <!-- NO RESULTS STATE -->
+                <div class="text-center py-20 animate-fade-in">
+                    <div class="glass-card rounded-3xl shadow-lg p-12 max-w-lg mx-auto">
+                        <div
+                            class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 dark:text-gray-500"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">No results found</h3>
+                        <p class="text-gray-500 dark:text-gray-400 mb-6 text-lg">
+                            We couldn't find any verses matching <strong>"{{ query }}"</strong>
+                        </p>
+                        <button onclick="document.getElementById('search-input').focus()"
+                            class="mt-6 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl transition-colors duration-200 font-medium">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+                {% else %}
+                <!-- WELCOME / DEFAULT STATE (Verse of the Day) -->
+                <section class="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+                    <div
+                        class="bg-gradient-to-r from-brand-600 to-brand-800 rounded-2xl p-1 shadow-xl transform transition hover:scale-[1.005]">
+                        <div class="bg-white dark:bg-gray-900 rounded-xl p-8 md:p-10 h-full relative overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-brand-500 opacity-10 rounded-full blur-3xl">
+                            </div>
+                            <div class="flex items-center gap-2 mb-6">
+                                <span
+                                    class="bg-gold-100 text-gold-700 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">Verse
+                                    of the Day</span>
+                                <span class="text-gray-400 text-sm">Surah Al-Baqarah, 2:152</span>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                <div class="text-right order-2 md:order-2">
+                                    <h3
+                                        class="text-3xl md:text-4xl font-arabic leading-relaxed text-gray-800 dark:text-gray-100 mb-4">
+                                        فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ
+                                    </h3>
+                                </div>
+                                <div class="order-1 md:order-1">
+                                    <p class="text-xl text-gray-600 dark:text-gray-300 leading-relaxed italic mb-4">
+                                        "So remember Me; I will remember you. And be grateful to Me and do not deny Me."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+            </section>
+        </div>
+
+        <!-- BROWSE SURAHS PAGE (Client Side) -->
+        <div id="page-surahs" class="page-section hidden max-w-7xl mx-auto px-4 py-8">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 border-l-4 border-brand-500 pl-4">Browse
+                Surahs</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="surah-grid">
+                <!-- Surahs injected via JS -->
+            </div>
+        </div>
+
+    </main>
+    <!-- FOOTER SECTION -->
+    <footer
+        class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-20 pb-24 md:pb-12 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                <!-- Brand Column -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <span class="font-bold text-xl text-gray-900 dark:text-white tracking-tight">Al-Bayan</span>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+                        An intelligent Quran search engine designed to connect you with divine wisdom through modern
+                        semantic technology.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-4">Discovery</h3>
+                    <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li><button onclick="app.showPage('home')"
+                                class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Search
+                                Engine</button></li>
+                        <li><button onclick="app.showPage('surahs')"
+                                class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Browse
+                                Surahs</button></li>
+                        <li><button onclick="bookmarksPanel.toggle()"
+                                class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">My
+                                Bookmarks</button></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Verse
+                                of the Day</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-4">Resources</h3>
+                    <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Tafseer
+                                Ibn Kathir</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Hadith
+                                Collections</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Prayer
+                                Times</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Islamic
+                                Calendar</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social / Connect -->
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:bg-brand-600 hover:text-white transition-all duration-300">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:bg-brand-600 hover:text-white transition-all duration-300">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.072 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div
+                class="border-t border-gray-100 dark:border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-500 text-center md:text-left">&copy; 2024 Al-Bayan. Created for FYP.</p>
+                <div class="flex gap-6 text-sm text-gray-500">
+                    <a href="#" class="hover:text-brand-600 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-brand-600 transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Audio Player (Persists across pages) -->
+    <div id="audio-player"
+        class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-2xl transform translate-y-full transition-transform duration-300 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4 flex-1">
+                <div
+                    class="w-10 h-10 bg-brand-100 dark:bg-brand-900 rounded-lg flex items-center justify-center text-brand-600">
+                    <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h4 class="font-medium text-gray-900 dark:text-white truncate" id="player-title">Recitation</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Mishary Rashid Alafasy</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button id="play-pause-btn" onclick="audioManager.toggle()"
+                    class="p-3 bg-brand-600 text-white rounded-full hover:bg-brand-700 shadow-lg transform hover:scale-105 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+                <button onclick="document.getElementById('audio-player').classList.add('translate-y-full')"
+                    class="p-2 text-gray-400 hover:text-red-500 ml-2"><svg class="w-5 h-5" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg></button>
+            </div>
+        </div>
+        <div class="h-1 bg-gray-200 dark:bg-gray-800 w-full">
+            <div class="h-full bg-brand-500 w-1/3 transition-all duration-1000" id="audio-progress"></div>
+        </div>
+    </div>
+
+    <!-- Bookmarks Drawer -->
+    <div id="bookmarks-drawer"
+        class="fixed inset-y-0 right-0 w-80 bg-white dark:bg-gray-900 shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div
+            class="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-950">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <svg class="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+                </svg>
+                Saved Verses
+            </h3>
+            <button onclick="bookmarksPanel.toggle()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="flex-grow overflow-y-auto p-4 space-y-3" id="bookmarks-list">
+            <div class="text-center py-10 text-gray-400">
+                <p>No bookmarks yet.</p>
+            </div>
+        </div>
+    </div>
+    <div id="drawer-overlay" onclick="bookmarksPanel.toggle()"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="settingsModal.toggle()"></div>
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden animate-fade-in">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Settings</h3>
+                <button onclick="settingsModal.toggle()" class="text-gray-400 hover:text-gray-600"><svg class="w-6 h-6"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Font Size -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Arabic Font
+                        Size</label>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs">A</span>
+                        <input type="range" min="20" max="60" value="36"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            oninput="settings.updateFontSize('arabic', this.value)">
+                        <span class="text-xl">A</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Translation
+                        Size</label>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs">T</span>
+                        <input type="range" min="14" max="24" value="18"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            oninput="settings.updateFontSize('translation', this.value)">
+                        <span class="text-xl">T</span>
+                    </div>
+                </div>
+                <!-- Toggles -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 dark:text-gray-300">Show English</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" checked class="sr-only peer"
+                                onchange="settings.toggleTranslation('english', this.checked)">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600">
+                            </div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 dark:text-gray-300">Show Urdu</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" checked class="sr-only peer"
+                                onchange="settings.toggleTranslation('urdu', this.checked)">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 text-center">
+                <button onclick="settingsModal.toggle()"
+                    class="text-brand-600 font-medium hover:underline">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-24 right-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span class="font-medium" id="toast-msg">Operation successful</span>
+    </div>
+
+    <script>
+        // CLIENT SIDE DATA (For "Browse Surahs" feature only)
+        const surahList = [
+            { number: 1, name: "Al-Fatiha", english: "The Opener", verses: 7, revelation: "Meccan" },
+            { number: 2, name: "Al-Baqarah", english: "The Cow", verses: 286, revelation: "Medinan" },
+            { number: 3, name: "Ali 'Imran", english: "Family of Imran", verses: 200, revelation: "Medinan" },
+            { number: 4, name: "An-Nisa", english: "The Women", verses: 176, revelation: "Medinan" },
+            { number: 5, name: "Al-Ma'idah", english: "The Table Spread", verses: 120, revelation: "Medinan" },
+            { number: 6, name: "Al-An'am", english: "The Cattle", verses: 165, revelation: "Meccan" },
+            { number: 18, name: "Al-Kahf", english: "The Cave", verses: 110, revelation: "Meccan" },
+            { number: 36, name: "Ya-Sin", english: "Ya Sin", verses: 83, revelation: "Meccan" },
+            { number: 55, name: "Ar-Rahman", english: "The Beneficent", verses: 78, revelation: "Medinan" },
+            { number: 67, name: "Al-Mulk", english: "The Sovereignty", verses: 30, revelation: "Meccan" },
+            { number: 112, name: "Al-Ikhlas", english: "The Sincerity", verses: 4, revelation: "Meccan" },
+            { number: 113, name: "Al-Falaq", english: "The Daybreak", verses: 5, revelation: "Meccan" },
+            { number: 114, name: "An-Nas", english: "The Mankind", verses: 6, revelation: "Meccan" },
+        ];
+
+        // APP LOGIC
+        const app = {
+            init: () => {
+                app.loadTheme();
+                app.renderSurahs();
+                app.setupEventListeners();
+                settings.apply();
+
+                // Initialize bookmarks from storage
+                bookmarksPanel.load();
+            },
+
+            setupEventListeners: () => {
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                });
+
+                window.addEventListener('scroll', () => {
+                    const nav = document.getElementById('navbar');
+                    if (window.scrollY > 20) nav.classList.add('glass', 'shadow-sm');
+                    // else nav.classList.remove('glass', 'shadow-sm'); 
+                });
+            },
+
+            loadTheme: () => {
+                if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            },
+
+            showPage: (pageId) => {
+                document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById('page-' + pageId).classList.remove('hidden');
+
+                if (pageId === 'home') {
+                    // document.getElementById('results-section').classList.add('hidden'); // Don't hide results when switching back
+                    window.scrollTo(0, 0);
+                }
+            },
+
+            renderSurahs: () => {
+                const grid = document.getElementById('surah-grid');
+                grid.innerHTML = surahList.map(s => `
+                    <div class="glass-card rounded-xl p-5 hover:border-brand-500 border border-transparent cursor-pointer transition-all hover:shadow-lg group" onclick="app.setQuery('Surah ${s.name}')">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold group-hover:bg-brand-500 group-hover:text-white transition-colors">${s.number}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">${s.revelation}</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400">${s.name}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">${s.english}</p>
+                        <div class="text-xs text-gray-400">${s.verses} Verses</div>
+                    </div>
+                `).join('');
+            },
+
+            setQuery: (term) => {
+                const input = document.getElementById('search-input');
+                input.value = term;
+                app.showPage('home');
+                input.focus();
+            },
+
+            playAudio: (text) => {
+                const player = document.getElementById('audio-player');
+                player.classList.remove('translate-y-full');
+
+                // Audio logic here using text-to-speech or file mapping
+                // For now, we simulate UI activity
+                const progressBar = document.getElementById('audio-progress');
+                progressBar.style.width = '0%';
+                setTimeout(() => progressBar.style.width = '100%', 100);
+
+                app.showToast('Playing audio recitation...');
+            },
+
+            copyText: (text1, text2) => {
+                navigator.clipboard.writeText(`${text1}\n\n${text2}`);
+                app.showToast('Copied to clipboard');
+            },
+
+            showToast: (msg) => {
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-msg').innerText = msg;
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            }
+        };
+
+        // SETTINGS MANAGER (Client-side visual tweaks only)
+        const settings = {
+            showEnglish: true,
+            showUrdu: true,
+            arabicSize: 36,
+            translationSize: 18,
+
+            updateFontSize: (type, val) => {
+                if (type === 'arabic') {
+                    settings.arabicSize = val;
+                    document.querySelectorAll('.arabic-content').forEach(el => el.style.fontSize = val + 'px');
+                } else {
+                    settings.translationSize = val;
+                    document.querySelectorAll('.translation-content').forEach(el => el.style.fontSize = val + 'px');
+                }
+            },
+
+            toggleTranslation: (lang, isChecked) => {
+                if (lang === 'english') {
+                    settings.showEnglish = isChecked;
+                    document.querySelectorAll('.translation-english').forEach(el => isChecked ? el.classList.remove('hidden') : el.classList.add('hidden'));
+                } else {
+                    settings.showUrdu = isChecked;
+                    document.querySelectorAll('.translation-urdu').forEach(el => isChecked ? el.classList.remove('hidden') : el.classList.add('hidden'));
+                }
+            },
+
+            apply: () => {
+                settings.updateFontSize('arabic', settings.arabicSize);
+                settings.updateFontSize('translation', settings.translationSize);
+            }
+        };
+
+        // BOOKMARKS PANEL UI (Local Storage persistence)
+        const bookmarksPanel = {
+            items: JSON.parse(localStorage.getItem('quran_bookmarks') || '[]'),
+
+            load: () => {
+                const list = document.getElementById('bookmarks-list');
+                const count = document.getElementById('nav-bookmark-count');
+
+                if (bookmarksPanel.items.length === 0) {
+                    list.innerHTML = `<div class="text-center py-10 text-gray-400"><p>No bookmarks yet.</p></div>`;
+                    count.classList.add('hidden');
+                    return;
+                }
+
+                count.innerText = bookmarksPanel.items.length;
+                count.classList.remove('hidden');
+
+                list.innerHTML = bookmarksPanel.items.map((item, index) => `
+                    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-brand-600 text-sm">Surah ${item.s}:${item.a}</span>
+                            <div class="text-xs text-gray-500">Saved verse</div>
+                        </div>
+                        <button onclick="bookmarksPanel.remove(${index})" class="text-red-400 hover:text-red-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                    </div>
+                `).join('');
+            },
+
+            toggle: () => {
+                const drawer = document.getElementById('bookmarks-drawer');
+                const overlay = document.getElementById('drawer-overlay');
+                if (drawer.classList.contains('translate-x-full')) {
+                    drawer.classList.remove('translate-x-full');
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                } else {
+                    drawer.classList.add('translate-x-full');
+                    overlay.classList.add('opacity-0');
+                    setTimeout(() => overlay.classList.add('hidden'), 300);
+                }
+            },
+
+            add: (s, a) => {
+                bookmarksPanel.items.push({ s, a });
+                localStorage.setItem('quran_bookmarks', JSON.stringify(bookmarksPanel.items));
+                bookmarksPanel.load();
+                app.showToast(`Saved Surah ${s}:${a}`);
+            },
+
+            remove: (index) => {
+                bookmarksPanel.items.splice(index, 1);
+                localStorage.setItem('quran_bookmarks', JSON.stringify(bookmarksPanel.items));
+                bookmarksPanel.load();
+            }
+        };
+
+        const settingsModal = {
+            toggle: () => {
+                const el = document.getElementById('settings-modal');
+                el.classList.toggle('hidden');
+            }
+        };
+
+        const audioManager = {
+            toggle: () => {
+                // Implement play/pause logic here
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', app.init);
+
+    </script>
+</body>
+
+</html>

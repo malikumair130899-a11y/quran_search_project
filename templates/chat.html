@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Quran Chatbot - AI Islamic Companion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'bounce-gentle': 'bounceGentle 1.2s infinite ease-in-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.5)' },
+                            '50%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)' }
+                        },
+                        bounceGentle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .message-fade-in {
+            margin-bottom: 0.25rem;
+            /* 4px spacing between messages */
+        }
+
+        .message-fade-in>div {
+            padding: 0.75rem !important;
+            /* Reduce padding in message bubbles */
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            animation: bounceGentle 1.2s infinite ease-in-out;
+            margin: 0 2px;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .glass-effect {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(55, 65, 81, 0.3);
+        }
+
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.5);
+        }
+
+        .hover-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .hover-lift:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body
+    class="flex bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900 dark:text-gray-100 transition-all duration-500 min-h-screen">
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="w-52 h-screen bg-white/20 dark:bg-gray-900/10 backdrop-blur-md shadow-xl p-2 flex flex-col transition-all duration-300 transform text-xs leading-tight">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-5">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                    <span class="text-white text-base">📚</span>
+                </div>
+                <h2
+                    class="text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Chat History
+                </h2>
+            </div>
+            <button onclick="toggleSidebar()"
+                class="text-gray-500 dark:text-gray-400 hover:text-red-500 text-xl hover-lift rounded-full w-8 h-8 flex items-center justify-center transition duration-200">
+                ×
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="relative mb-4">
+            <input id="historySearch" type="text" placeholder="Search conversations..."
+                class="w-full px-3 py-2 rounded-lg border-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                oninput="loadSidebarHistory()" />
+            <div class="absolute right-3 top-2.5 text-gray-400 pointer-events-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Add this section for "Chats" heading -->
+        <div class="flex items-center justify-between mb-2 px-1">
+            <h3 class="text-xs font-semibold text-gray-600 dark:text-gray-400">Chats</h3>
+            <span class="text-xs text-gray-500 dark:text-gray-500" id="chatCount"></span>
+        </div>
+
+        <!-- History List container remains the same -->
+        <div id="historyList" class="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-1.5">
+            <!-- Chat history items will be inserted here -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-6 space-y-2">
+            <button id="newChatBtn"
+                class="w-full px-2 py-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-md hover:from-emerald-600 hover:to-green-700 transition-all duration-200 hover-lift font-medium shadow text-xs flex items-center justify-center gap-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                New Chat
+            </button>
+
+            <button id="clearAllBtn"
+                class="w-full px-2 py-1.5 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-md hover:from-red-600 hover:to-pink-700 transition-all duration-200 hover-lift font-medium shadow text-xs flex items-center justify-center gap-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear All
+            </button>
+        </div>
+    </aside>
+
+    <!-- Sidebar Toggle Button -->
+    <button id="openSidebarBtn" onclick="toggleSidebar()"
+        class="fixed top-6 left-6 z-50 px-3 py-2 glass-effect text-gray-800 dark:text-gray-200 rounded-lg shadow-md hover-lift hidden transition-all duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen">
+
+        <!-- Header -->
+        <header
+            class="relative bg-white/20 dark:bg-gray-900/10 backdrop-blur-sm shadow-sm px-2 py-1 border-b border-white/10 dark:border-gray-700/20 text-xs leading-tight z-40">
+
+            <div class="flex items-center justify-between">
+
+                <!-- Left: Logo and Title -->
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-white text-lg">🕌</span>
+                    </div>
+                    <div>
+                        <h1
+                            class="text-lg font-bold bg-gradient-to-r from-blue-700 to-purple-700 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                            Quran Chatbot
+                        </h1>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                            Your AI Islamic companion for Quranic guidance
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right: Online Badge + Theme Toggle -->
+                <div class="flex items-center gap-3">
+
+                    <!-- Online badge -->
+                    <div
+                        class="hidden md:flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full shadow">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs text-green-700 dark:text-green-400 font-medium">Online</span>
+                    </div>
+
+                    <!-- Theme toggle switch -->
+                    <label for="themeToggle"
+                        class="flex items-center cursor-pointer relative group select-none w-14 h-7">
+                        <input type="checkbox" id="themeToggle" class="sr-only">
+
+                        <!-- Switch background -->
+                        <div
+                            class="w-full h-full bg-gray-300 dark:bg-gray-700 rounded-full shadow-inner transition-colors duration-300">
+                        </div>
+
+                        <!-- Switch thumb -->
+                        <div
+                            class="absolute left-1 top-1 w-5 h-5 bg-white dark:bg-yellow-400 rounded-full shadow-md flex items-center justify-center transition-all duration-300 group-checked:left-8">
+
+                            <!-- Sun Icon (Light Mode) -->
+                            <svg class="w-3.5 h-3.5 text-yellow-400 dark:hidden" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 3v1m0 16v1m8.66-12.66l-.71.71M4.05 19.95l-.71-.71M21 12h-1M4 12H3m16.66 4.95l-.71-.71M4.05 4.05l-.71.71M12 5a7 7 0 100 14a7 7 0 000-14z" />
+                            </svg>
+
+                            <!-- Moon Icon (Dark Mode) -->
+                            <svg class="w-3.5 h-3.5 hidden dark:block text-gray-800" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+                            </svg>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- Make chat area more compact -->
+        <div id="chatBox"
+            class="flex-1 overflow-y-auto px-1 py-0.5 space-y-1 custom-scrollbar scroll-smooth text-xs leading-tight bg-white/10 dark:bg-gray-900/20 backdrop-blur-md">
+            <!-- Welcome Message - more compact -->
+            <div class="max-w-md mx-auto text-center py-2">
+                <!-- Smaller Icon -->
+                <div
+                    class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-1.5 shadow-lg">
+                    <span class="text-white text-base">📖</span>
+                </div>
+
+                <!-- Smaller Heading -->
+                <h2 class="text-base font-bold text-gray-800 dark:text-gray-100 mb-0.5 tracking-tight">
+                    Welcome to Quran Chatbot
+                </h2>
+
+                <!-- Smaller Description -->
+                <p class="text-xs text-gray-600 dark:text-gray-400 leading-snug mb-2">
+                    Ask me anything about the Holy Quran. I can help you find verses about specific topics, explain
+                    meanings, and provide guidance from Islamic teachings.
+                </p>
+
+                <!-- More compact Sample Questions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 max-w-xs mx-auto">
+                    <button onclick="askSampleQuestion('What does the Quran say about mercy?')"
+                        class="p-1.5 bg-white/60 dark:bg-gray-800/60 rounded-lg hover-lift border border-gray-200/30 dark:border-gray-700/30 text-left transition-all duration-200 shadow-sm hover:shadow-md">
+                        <div class="text-blue-600 dark:text-blue-400 font-semibold text-xs">About Mercy</div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 leading-tight">Discover verses about
+                            Allah's mercy</div>
+                    </button>
+                    <button onclick="askSampleQuestion('What does the Quran say about patience?')"
+                        class="p-1.5 bg-white/60 dark:bg-gray-800/60 rounded-lg hover-lift border border-gray-200/30 dark:border-gray-700/30 text-left transition-all duration-200 shadow-sm hover:shadow-md">
+                        <div class="text-purple-600 dark:text-purple-400 font-semibold text-xs">About Patience</div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 leading-tight">Learn about Sabr in Islam
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Input Area -->
+        <div class="glass-effect px-4 py-3 border-t border-white/20 dark:border-gray-700/50 shadow-2xl">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex gap-4 items-end">
+                    <div class="flex-1 relative">
+                        <textarea id="question"
+                            placeholder="Ask about mercy, forgiveness, prayer, or any Quranic topic..."
+                            class="w-full px-4 py-3 rounded-xl border-0 bg-white/40 dark:bg-gray-800/60 backdrop-blur-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md transition-all duration-200 text-base leading-normal max-h-32 min-h-[3em] overflow-y-auto"
+                            rows="1"
+                            onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); askQuestion(); }"></textarea>
+                        <div class="absolute right-4 top-4 text-gray-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <button onclick="askQuestion()"
+                        class="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md flex items-center gap-2 text-base leading-normal">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        Send
+                    </button>
+
+                </div>
+                <div class="flex items-center justify-center mt-4 text-xs text-gray-500 dark:text-gray-400">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
+                    Your conversations are stored locally and privately
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chatBox");
+        const questionInput = document.getElementById("question");
+        const toggleTheme = document.getElementById("toggleTheme");
+        const clearAllBtn = document.getElementById("clearAllBtn");
+        const newChatBtn = document.getElementById("newChatBtn");
+        const historyList = document.getElementById("historyList");
+        const historySearch = document.getElementById("historySearch");
+        const sidebar = document.getElementById("sidebar");
+        const openSidebarBtn = document.getElementById("openSidebarBtn");
+        const rootHtml = document.documentElement;
+
+        let sessionId = Date.now().toString();
+        let chatTitle = "New Chat";
+        let messageCount = 0;
+
+
+        const toggleInput = document.getElementById('themeToggle');
+
+        // Apply saved theme on load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            toggleInput.checked = true;
+        }
+
+        toggleInput.addEventListener('change', () => {
+            const isDark = toggleInput.checked;
+            document.documentElement.classList.toggle('dark', isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Load saved theme on page load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+        const textarea = document.getElementById('question');
+        textarea.addEventListener('input', function () {
+            // Reset height to allow shrinking
+            this.style.height = 'auto';
+
+            // Set new height based on content, with max height of 8 lines
+            const maxHeight = parseInt(getComputedStyle(this).lineHeight) * 8;
+            this.style.height = Math.min(this.scrollHeight, maxHeight) + 'px';
+        });
+
+
+
+        // Sidebar functionality
+        function toggleSidebar() {
+            const isHidden = sidebar.classList.toggle("-translate-x-full");
+            openSidebarBtn.classList.toggle("hidden", !isHidden);
+
+            // Save sidebar state
+            localStorage.setItem("sidebarHidden", isHidden);
+        }
+
+        // Restore sidebar state
+        if (localStorage.getItem("sidebarHidden") === "true") {
+            sidebar.classList.add("-translate-x-full");
+            openSidebarBtn.classList.remove("hidden");
+        }
+
+        // Enhanced message saving with metadata
+        function saveMessage(content, type, timestamp = Date.now()) {
+            const key = `chat_${sessionId}`;
+            const history = JSON.parse(localStorage.getItem(key) || "[]");
+            history.push({ content, type, timestamp });
+            localStorage.setItem(key, JSON.stringify(history));
+
+            if (!localStorage.getItem(`${key}_name`)) {
+                localStorage.setItem(`${key}_name`, chatTitle);
+            }
+        }
+
+        // Enhanced chat loading
+        // Replace the existing loadChat function with this updated version:
+
+        function loadChat(session) {
+            const welcomeMessage = chatBox.querySelector('.max-w-md');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
+            sessionId = session;
+            const messages = JSON.parse(localStorage.getItem(`chat_${session}`) || "[]");
+            chatTitle = localStorage.getItem(`chat_${session}_name`) || "Chat";
+            messageCount = 0;
+
+            // Clear chat box
+            chatBox.innerHTML = "";
+
+            // Calculate starting position for limited messages
+            const startIndex = Math.max(0, messages.length - 50); // Show last 50 messages
+            const visibleMessages = messages.slice(startIndex);
+
+            // Add messages without scrolling
+            visibleMessages.forEach((msg, index) => {
+                const messageContainer = document.createElement("div");
+                messageContainer.className = `flex ${msg.type === "user" ? "justify-end" : "justify-start"} message-fade-in`;
+
+                // Add message content using existing addMessage function but prevent auto-scroll
+                addMessage(msg.content, msg.type, false);
+            });
+
+            // Set scroll position to show the last message
+            setTimeout(() => {
+                const lastMessage = chatBox.lastElementChild;
+                if (lastMessage) {
+                    lastMessage.scrollIntoView({ behavior: 'instant', block: 'end' });
+                }
+            }, 0);
+        }
+
+
+        // Enhanced message display with animations
+        function addMessage(content, type, shouldScroll = true) {
+            const messageContainer = document.createElement("div");
+            messageContainer.className = `flex ${type === "user" ? "justify-end" : "justify-start"} message-fade-in`;
+
+            const bubble = document.createElement("div");
+            const isUser = type === "user";
+
+            bubble.className = `max-w-2xl p-6 rounded-3xl shadow-lg backdrop-blur-sm border transition-all duration-200 hover-lift ${isUser
+                ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white ml-12 rounded-br-lg"
+                : "bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 mr-12 rounded-bl-lg border-gray-200/50 dark:border-gray-700/50"
+                }`;
+
+            if (isUser) {
+                bubble.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="flex-1">
+              <div class="font-medium mb-2">You</div>
+              <div class="whitespace-pre-line leading-relaxed">${content}</div>
+            </div>
+            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+          </div>
+        `;
+            } else {
+                bubble.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-white text-sm">🕌</span>
+            </div>
+            <div class="flex-1">
+              <div class="font-medium mb-2 text-blue-600 dark:text-blue-400">Quran Chatbot</div>
+              <div class="whitespace-pre-line leading-relaxed">${content}</div>
+            </div>
+          </div>
+        `;
+            }
+
+            messageContainer.appendChild(bubble);
+            chatBox.appendChild(messageContainer);
+            if (shouldScroll) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            messageCount++;
+        }
+
+        // Enhanced typing indicator
+        function showLoader() {
+            const loaderContainer = document.createElement("div");
+            loaderContainer.id = "typingLoader";
+            loaderContainer.className = "flex justify-start message-fade-in";
+
+            const loader = document.createElement("div");
+            loader.className = "max-w-xs p-6 rounded-3xl rounded-bl-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg border border-gray-200/50 dark:border-gray-700/50 mr-12";
+            loader.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm">🕌</span>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium mb-2 text-blue-600 dark:text-blue-400">Quran Chatbot</div>
+            <div class="typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      `;
+
+            loaderContainer.appendChild(loader);
+            chatBox.appendChild(loaderContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeLoader() {
+            const loader = document.getElementById("typingLoader");
+            if (loader) {
+                loader.style.opacity = "0";
+                setTimeout(() => loader.remove(), 200);
+            }
+        }
+
+        // Sample question function
+        function askSampleQuestion(question) {
+            questionInput.value = question;
+            askQuestion();
+        }
+
+        // Enhanced question handling
+        async function askQuestion() {
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // Remove compact welcome if present
+            const welcomeMessage = chatBox.querySelector('.max-w-md');
+            if (welcomeMessage) {
+                welcomeMessage.style.opacity = "0";
+                setTimeout(() => welcomeMessage.remove(), 300);
+            }
+
+            // Show user message
+            addMessage(question, "user");
+            saveMessage(question, "user");
+
+            // Auto-generate chat title from first message
+            if (messageCount === 1) {
+                const snippet = question.length > 30 ? question.slice(0, 30) + "..." : question;
+                chatTitle = snippet;
+                localStorage.setItem(`chat_${sessionId}_name`, chatTitle);
+                loadSidebarHistory();
+            }
+
+            questionInput.value = "";
+            showLoader();
+
+            try {
+                const res = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await res.json();
+                removeLoader();
+
+                // Show ChatGPT-style answer (if provided)
+                if (data.answer) {
+                    addMessage(data.answer, "bot");
+                    saveMessage(data.answer, "bot");
+                }
+
+                // Render verse cards
+                const verses = data.verses || [];
+                if (!verses || verses.length === 0) {
+                    const msg = "I couldn't find relevant verses for your question. Try rephrasing or ask about another topic.";
+                    addMessage(msg, "bot");
+                    saveMessage(msg, "bot");
+                } else {
+                    verses.forEach((item, index) => {
+                        setTimeout(() => {
+                            const msg = `
+<div class="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 p-4 rounded-2xl mb-4 border border-emerald-200/50 dark:border-emerald-700/50">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-6 h-6 bg-gradient-to-r from-emerald-500 to-blue-600 rounded-lg flex items-center justify-center">
+      <span class="text-white text-xs font-bold">${item.surah}</span>
+    </div>
+    <span class="font-bold text-emerald-700 dark:text-emerald-300">Surah ${item.surah}, Ayah ${item.ayah_number}</span>
+  </div>
+  <div class="space-y-3">
+    <div class="p-3 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+      <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">English:</div>
+      <div class="text-gray-900 dark:text-gray-100 leading-relaxed">${item.english}</div>
+    </div>
+    <div class="p-3 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+      <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">اردو:</div>
+      <div class="text-gray-900 dark:text-gray-100 leading-relaxed text-right" dir="rtl">${item.urdu}</div>
+    </div>
+  </div>
+</div>`;
+                            addMessage(msg, "bot");
+                            saveMessage(msg, "bot");
+                        }, index * 250);
+                    });
+                }
+            } catch (err) {
+                removeLoader();
+                const msg = "I'm having trouble connecting right now. Please check your connection and try again.";
+                addMessage(msg, "bot");
+                saveMessage(msg, "bot");
+            }
+        }
+
+
+        // Enhanced history loading with better UI
+        function loadSidebarHistory() {
+            historyList.innerHTML = "";
+            const query = historySearch.value.toLowerCase();
+            const keys = Object.keys(localStorage).filter(k => k.startsWith("chat_") && !k.endsWith("_name"));
+
+            // Sort by timestamp (most recent first)
+            keys.sort((a, b) => {
+                const aTime = parseInt(a.split("_")[1]);
+                const bTime = parseInt(b.split("_")[1]);
+                return bTime - aTime;
+            });
+
+            if (keys.length === 0) {
+                historyList.innerHTML = `
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            <p class="text-sm">No conversations yet</p>
+            <p class="text-xs mt-1">Start by asking a question!</p>
+          </div>
+        `;
+                return;
+            }
+
+            keys.forEach((key, index) => {
+                const id = key.split("_")[1];
+                const title = localStorage.getItem(`${key}_name`) || "Chat";
+                const messages = JSON.parse(localStorage.getItem(key) || "[]");
+                const lastMessage = messages[messages.length - 1];
+
+                if (title.toLowerCase().includes(query) || (lastMessage && lastMessage.content.toLowerCase().includes(query))) {
+                    // Find and modify this section in the loadSidebarHistory function
+                    const btn = document.createElement("button");
+                    btn.className = `w-full text-left p-2 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-gray-700/70 rounded-lg transition-all duration-200 hover-lift border border-gray-200/30 dark:border-gray-700/30 ${sessionId === id
+                        ? 'bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 border-blue-200 dark:border-blue-800'
+                        : 'bg-white/50 dark:bg-gray-800/50'
+                        }`;
+                    const chatCount = document.getElementById('chatCount');
+                    if (chatCount) {
+                        chatCount.textContent = `${keys.length} ${keys.length === 1 ? 'chat' : 'chats'}`;
+                    }
+
+                    btn.innerHTML = `
+    <div class="flex items-start gap-2">
+        <div class="flex-1 min-w-0">
+            <div class="font-medium truncate text-xs ${sessionId === id
+                            ? 'text-blue-700 dark:text-blue-300'
+                            : 'text-gray-900 dark:text-gray-100'
+                        }">${title}</div>
+            <div class="text-xs ${sessionId === id
+                            ? 'text-blue-600/70 dark:text-blue-400/70'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }">
+                ${messages.length} messages
+            </div>
+        </div>
+    </div>
+`;
+
+                    btn.onclick = () => {
+                        loadChat(id);
+                        loadSidebarHistory();
+                    };
+
+                    // Add subtle animation delay
+                    btn.style.opacity = "0";
+                    btn.style.transform = "translateY(10px)";
+                    setTimeout(() => {
+                        btn.style.opacity = "1";
+                        btn.style.transform = "translateY(0)";
+                        btn.style.transition = "all 0.3s ease";
+                    }, index * 50);
+
+                    historyList.appendChild(btn);
+                }
+            });
+            // Add empty state if no matches
+            if (historyList.children.length === 0 && query) {
+                historyList.innerHTML = `
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <svg class="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <p class="text-sm">No matches found</p>
+          </div>
+        `;
+            }
+        }
+
+        // Enhanced new chat functionality
+        newChatBtn.onclick = () => {
+            sessionId = Date.now().toString();
+            chatTitle = "New Chat";
+            messageCount = 0;
+
+            // Clear chat with animation
+            const messages = chatBox.querySelectorAll('.message-fade-in');
+            messages.forEach((msg, index) => {
+                setTimeout(() => {
+                    msg.style.opacity = "0";
+                    msg.style.transform = "translateY(-10px)";
+                }, index * 50);
+            });
+
+            setTimeout(() => {
+                chatBox.innerHTML = `
+          <div class="max-w-2xl mx-auto text-center py-12">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <span class="text-white text-3xl">📖</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Welcome to Quran Chatbot</h2>
+            <p class="text-gray-600 dark:text-gray-400 text-lg mb-8">Ask me anything about the Holy Quran. I can help you find verses about specific topics, explain meanings, and provide guidance from Islamic teachings.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
+              <button onclick="askSampleQuestion('What does the Quran say about mercy?')" class="p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl hover-lift border border-gray-200/50 dark:border-gray-700/50 text-left">
+                <div class="text-blue-600 dark:text-blue-400 font-medium mb-1">About Mercy</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Discover verses about Allah's mercy</div>
+              </button>
+              <button onclick="askSampleQuestion('What does the Quran say about patience?')" class="p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl hover-lift border border-gray-200/50 dark:border-gray-700/50 text-left">
+                <div class="text-purple-600 dark:text-purple-400 font-medium mb-1">About Patience</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Learn about Sabr in Islam</div>
+              </button>
+            </div>
+          </div>
+        `;
+            }, messages.length * 50 + 200);
+
+            loadSidebarHistory();
+            questionInput.focus();
+        };
+
+        // Enhanced clear all functionality with confirmation
+        clearAllBtn.onclick = () => {
+            if (confirm("Are you sure you want to delete all chat history? This action cannot be undone.")) {
+                // Animate out
+                const historyItems = historyList.querySelectorAll('button');
+                historyItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.opacity = "0";
+                        item.style.transform = "translateX(-20px)";
+                    }, index * 50);
+                });
+
+                setTimeout(() => {
+                    Object.keys(localStorage).forEach(k => {
+                        if (k.startsWith("chat_")) localStorage.removeItem(k);
+                    });
+
+                    sessionId = Date.now().toString();
+                    chatTitle = "New Chat";
+                    messageCount = 0;
+
+                    chatBox.innerHTML = `
+            <div class="max-w-2xl mx-auto text-center py-12">
+              <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                <span class="text-white text-3xl">📖</span>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Welcome to Quran Chatbot</h2>
+              <p class="text-gray-600 dark:text-gray-400 text-lg mb-8">Ask me anything about the Holy Quran. I can help you find verses about specific topics, explain meanings, and provide guidance from Islamic teachings.</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
+                <button onclick="askSampleQuestion('What does the Quran say about mercy?')" class="p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl hover-lift border border-gray-200/50 dark:border-gray-700/50 text-left">
+                  <div class="text-blue-600 dark:text-blue-400 font-medium mb-1">About Mercy</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-400">Discover verses about Allah's mercy</div>
+                </button>
+                <button onclick="askSampleQuestion('What does the Quran say about patience?')" class="p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl hover-lift border border-gray-200/50 dark:border-gray-700/50 text-left">
+                  <div class="text-purple-600 dark:text-purple-400 font-medium mb-1">About Patience</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-400">Learn about Sabr in Islam</div>
+                </button>
+              </div>
+            </div>
+          `;
+
+                    loadSidebarHistory();
+                }, historyItems.length * 50 + 200);
+            }
+        };
+
+        // Auto-focus input and handle keyboard shortcuts
+        questionInput.focus();
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        newChatBtn.click();
+                        break;
+                    case 'k':
+                        e.preventDefault();
+                        questionInput.focus();
+                        break;
+                    case 'b':
+                        e.preventDefault();
+                        toggleSidebar();
+                        break;
+                }
+            }
+
+            if (e.key === 'Escape') {
+                questionInput.blur();
+            }
+        });
+
+        // Auto-resize textarea behavior for input
+        questionInput.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Initialize the application
+        loadSidebarHistory();
+        loadChat(sessionId);
+
+        // Add some helpful tooltips on hover (simple implementation)
+        const addTooltip = (element, text) => {
+            element.title = text;
+        };
+
+        addTooltip(newChatBtn, "Start a new conversation (Ctrl+N)");
+        addTooltip(clearAllBtn, "Delete all chat history");
+        addTooltip(toggleTheme, "Switch between light and dark mode");
+        addTooltip(questionInput, "Ask about any Quranic topic (Ctrl+K to focus)");
+
+        // Smooth scroll to bottom when new messages arrive
+        const observer = new MutationObserver(() => {
+            chatBox.scrollTo({
+                top: chatBox.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+
+        observer.observe(chatBox, { childList: true });
+
+        // Show online status animation
+        setInterval(() => {
+            const statusDot = document.querySelector('.animate-pulse');
+            if (statusDot) {
+                statusDot.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    statusDot.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }, 3000);
+    </script>
+</body>
+
+</html>

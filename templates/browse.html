@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse all 114 Surahs of the Quran - Al-Bayan">
+    <title>Browse Surahs | Al-Bayan</title>
+
+    <!-- Fonts (Same as index.html) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Lateef&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+    <script>
+    // This MUST run before the body loads to prevent flashing
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
+    <script>
+        // Exact configuration from index.html
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Amiri', 'serif'],
+                        'quran': ['Lateef', 'serif'],
+                        'urdu': ['Noto Nastaliq Urdu', 'serif'],
+                        'sans': ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f2fcf5',
+                            100: '#e1f8e8',
+                            200: '#c3edd4',
+                            300: '#95dbb6',
+                            400: '#5ec092',
+                            500: '#38a375',
+                            600: '#28825c',
+                            700: '#23684b',
+                            800: '#1f533e',
+                            900: '#1a4435',
+                            950: '#0e261e',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles from index.html */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .glass-card {
+            background: rgba(31, 41, 55, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Navbar -->
+    {% include 'navbar.html' %}
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-24 px-4 pb-20">
+
+        <!-- Header Section -->
+        <div class="max-w-7xl mx-auto mb-10 text-center animate-slide-up">
+            <h1 class="text-4xl md:text-5xl font-bold font-arabic mb-4 text-gray-900 dark:text-white">
+                Surah Index
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
+                Navigate through the 114 chapters of the Holy Quran.
+            </p>
+
+            <!-- Search Filter -->
+            <div class="mt-8 max-w-xl mx-auto relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400 group-focus-within:text-brand-500 transition-colors" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="surah-filter" placeholder="Filter by name (e.g. Kahf, Mulk)..."
+                    class="block w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all shadow-sm outline-none text-gray-900 dark:text-white"
+                    onkeyup="filterSurahs()">
+            </div>
+        </div>
+
+        <!-- Grid Container -->
+        <div class="max-w-7xl mx-auto">
+            <div id="surah-grid"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 animate-slide-up"
+                style="animation-delay: 0.1s;">
+                <!-- Surahs will be injected here via JS -->
+            </div>
+
+            <!-- No Results State -->
+            <div id="no-results" class="hidden text-center py-12">
+                <p class="text-gray-500 dark:text-gray-400 text-lg">No Surah found matching your criteria.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    {% include 'footer.html' %}
+
+    <script>
+        // Full Dataset of 114 Surahs
+        const surahList = [
+            { number: 1, name: "Al-Fatiha", english: "The Opener", verses: 7, type: "Meccan" },
+            { number: 2, name: "Al-Baqarah", english: "The Cow", verses: 286, type: "Medinan" },
+            { number: 3, name: "Ali 'Imran", english: "Family of Imran", verses: 200, type: "Medinan" },
+            { number: 4, name: "An-Nisa", english: "The Women", verses: 176, type: "Medinan" },
+            { number: 5, name: "Al-Ma'idah", english: "The Table Spread", verses: 120, type: "Medinan" },
+            { number: 6, name: "Al-An'am", english: "The Cattle", verses: 165, type: "Meccan" },
+            { number: 7, name: "Al-A'raf", english: "The Heights", verses: 206, type: "Meccan" },
+            { number: 8, name: "Al-Anfal", english: "The Spoils of War", verses: 75, type: "Medinan" },
+            { number: 9, name: "At-Tawbah", english: "The Repentance", verses: 129, type: "Medinan" },
+            { number: 10, name: "Yunus", english: "Jonah", verses: 109, type: "Meccan" },
+            { number: 11, name: "Hud", english: "Hud", verses: 123, type: "Meccan" },
+            { number: 12, name: "Yusuf", english: "Joseph", verses: 111, type: "Meccan" },
+            { number: 13, name: "Ar-Ra'd", english: "The Thunder", verses: 43, type: "Medinan" },
+            { number: 14, name: "Ibrahim", english: "Abraham", verses: 52, type: "Meccan" },
+            { number: 15, name: "Al-Hijr", english: "The Rocky Tract", verses: 99, type: "Meccan" },
+            { number: 16, name: "An-Nahl", english: "The Bee", verses: 128, type: "Meccan" },
+            { number: 17, name: "Al-Isra", english: "The Night Journey", verses: 111, type: "Meccan" },
+            { number: 18, name: "Al-Kahf", english: "The Cave", verses: 110, type: "Meccan" },
+            { number: 19, name: "Maryam", english: "Mary", verses: 98, type: "Meccan" },
+            { number: 20, name: "Ta-Ha", english: "Ta-Ha", verses: 135, type: "Meccan" },
+            { number: 21, name: "Al-Anbya", english: "The Prophets", verses: 112, type: "Meccan" },
+            { number: 22, name: "Al-Hajj", english: "The Pilgrimage", verses: 78, type: "Medinan" },
+            { number: 23, name: "Al-Mu'minun", english: "The Believers", verses: 118, type: "Meccan" },
+            { number: 24, name: "An-Nur", english: "The Light", verses: 64, type: "Medinan" },
+            { number: 25, name: "Al-Furqan", english: "The Criterion", verses: 77, type: "Meccan" },
+            { number: 26, name: "Ash-Shu'ara", english: "The Poets", verses: 227, type: "Meccan" },
+            { number: 27, name: "An-Naml", english: "The Ant", verses: 93, type: "Meccan" },
+            { number: 28, name: "Al-Qasas", english: "The Stories", verses: 88, type: "Meccan" },
+            { number: 29, name: "Al-Ankabut", english: "The Spider", verses: 69, type: "Meccan" },
+            { number: 30, name: "Ar-Rum", english: "The Romans", verses: 60, type: "Meccan" },
+            { number: 31, name: "Luqman", english: "Luqman", verses: 34, type: "Meccan" },
+            { number: 32, name: "As-Sajdah", english: "The Prostration", verses: 30, type: "Meccan" },
+            { number: 33, name: "Al-Ahzab", english: "The Combined Forces", verses: 73, type: "Medinan" },
+            { number: 34, name: "Saba", english: "Sheba", verses: 54, type: "Meccan" },
+            { number: 35, name: "Fatir", english: "Originator", verses: 45, type: "Meccan" },
+            { number: 36, name: "Ya-Sin", english: "Ya Sin", verses: 83, type: "Meccan" },
+            { number: 37, name: "As-Saffat", english: "Those Who Set The Ranks", verses: 182, type: "Meccan" },
+            { number: 38, name: "Sad", english: "The Letter 'Sad'", verses: 88, type: "Meccan" },
+            { number: 39, name: "Az-Zumar", english: "The Troops", verses: 75, type: "Meccan" },
+            { number: 40, name: "Ghafir", english: "The Forgiver", verses: 85, type: "Meccan" },
+            { number: 41, name: "Fussilat", english: "Explained in Detail", verses: 54, type: "Meccan" },
+            { number: 42, name: "Ash-Shura", english: "The Consultation", verses: 53, type: "Meccan" },
+            { number: 43, name: "Az-Zukhruf", english: "The Ornaments of Gold", verses: 89, type: "Meccan" },
+            { number: 44, name: "Ad-Dukhan", english: "The Smoke", verses: 59, type: "Meccan" },
+            { number: 45, name: "Al-Jathiyah", english: "The Crouching", verses: 37, type: "Meccan" },
+            { number: 46, name: "Al-Ahqaf", english: "The Wind-Curved Sandhills", verses: 35, type: "Meccan" },
+            { number: 47, name: "Muhammad", english: "Muhammad", verses: 38, type: "Medinan" },
+            { number: 48, name: "Al-Fath", english: "The Victory", verses: 29, type: "Medinan" },
+            { number: 49, name: "Al-Hujurat", english: "The Rooms", verses: 18, type: "Medinan" },
+            { number: 50, name: "Qaf", english: "The Letter 'Qaf'", verses: 45, type: "Meccan" },
+            { number: 51, name: "Ad-Dhariyat", english: "The Winnowing Winds", verses: 60, type: "Meccan" },
+            { number: 52, name: "At-Tur", english: "The Mount", verses: 49, type: "Meccan" },
+            { number: 53, name: "An-Najm", english: "The Star", verses: 62, type: "Meccan" },
+            { number: 54, name: "Al-Qamar", english: "The Moon", verses: 55, type: "Meccan" },
+            { number: 55, name: "Ar-Rahman", english: "The Beneficent", verses: 78, type: "Medinan" },
+            { number: 56, name: "Al-Waqi'ah", english: "The Inevitable", verses: 96, type: "Meccan" },
+            { number: 57, name: "Al-Hadid", english: "The Iron", verses: 29, type: "Medinan" },
+            { number: 58, name: "Al-Mujadila", english: "The Pleading Woman", verses: 22, type: "Medinan" },
+            { number: 59, name: "Al-Hashr", english: "The Exile", verses: 24, type: "Medinan" },
+            { number: 60, name: "Al-Mumtahanah", english: "She That Is To Be Examined", verses: 13, type: "Medinan" },
+            { number: 61, name: "As-Saff", english: "The Ranks", verses: 14, type: "Medinan" },
+            { number: 62, name: "Al-Jumu'ah", english: "The Congregation, Friday", verses: 11, type: "Medinan" },
+            { number: 63, name: "Al-Munafiqun", english: "The Hypocrites", verses: 11, type: "Medinan" },
+            { number: 64, name: "At-Taghabun", english: "The Mutual Disillusion", verses: 18, type: "Medinan" },
+            { number: 65, name: "At-Talaq", english: "The Divorce", verses: 12, type: "Medinan" },
+            { number: 66, name: "At-Tahrim", english: "The Prohibition", verses: 12, type: "Medinan" },
+            { number: 67, name: "Al-Mulk", english: "The Sovereignty", verses: 30, type: "Meccan" },
+            { number: 68, name: "Al-Qalam", english: "The Pen", verses: 52, type: "Meccan" },
+            { number: 69, name: "Al-Haqqah", english: "The Reality", verses: 52, type: "Meccan" },
+            { number: 70, name: "Al-Ma'arij", english: "The Ascending Stairways", verses: 44, type: "Meccan" },
+            { number: 71, name: "Nuh", english: "Noah", verses: 28, type: "Meccan" },
+            { number: 72, name: "Al-Jinn", english: "The Jinn", verses: 28, type: "Meccan" },
+            { number: 73, name: "Al-Muzzammil", english: "The Enshrouded One", verses: 20, type: "Meccan" },
+            { number: 74, name: "Al-Muddaththir", english: "The Cloaked One", verses: 56, type: "Meccan" },
+            { number: 75, name: "Al-Qiyamah", english: "The Resurrection", verses: 40, type: "Meccan" },
+            { number: 76, name: "Al-Insan", english: "The Man", verses: 31, type: "Medinan" },
+            { number: 77, name: "Al-Mursalat", english: "The Emissaries", verses: 50, type: "Meccan" },
+            { number: 78, name: "An-Naba", english: "The Tidings", verses: 40, type: "Meccan" },
+            { number: 79, name: "An-Nazi'at", english: "Those Who Drag Forth", verses: 46, type: "Meccan" },
+            { number: 80, name: "Abasa", english: "He Frowned", verses: 42, type: "Meccan" },
+            { number: 81, name: "At-Takwir", english: "The Overthrowing", verses: 29, type: "Meccan" },
+            { number: 82, name: "Al-Infitar", english: "The Cleaving", verses: 19, type: "Meccan" },
+            { number: 83, name: "Al-Mutaffifin", english: "The Defrauding", verses: 36, type: "Meccan" },
+            { number: 84, name: "Al-Inshiqaq", english: "The Sundering", verses: 25, type: "Meccan" },
+            { number: 85, name: "Al-Buruj", english: "The Mansions of the Stars", verses: 22, type: "Meccan" },
+            { number: 86, name: "At-Tariq", english: "The Nightcommer", verses: 17, type: "Meccan" },
+            { number: 87, name: "Al-A'la", english: "The Most High", verses: 19, type: "Meccan" },
+            { number: 88, name: "Al-Ghashiyah", english: "The Overwhelming", verses: 26, type: "Meccan" },
+            { number: 89, name: "Al-Fajr", english: "The Dawn", verses: 30, type: "Meccan" },
+            { number: 90, name: "Al-Balad", english: "The City", verses: 20, type: "Meccan" },
+            { number: 91, name: "Ash-Shams", english: "The Sun", verses: 15, type: "Meccan" },
+            { number: 92, name: "Al-Layl", english: "The Night", verses: 21, type: "Meccan" },
+            { number: 93, name: "Ad-Duhaa", english: "The Morning Hours", verses: 11, type: "Meccan" },
+            { number: 94, name: "Ash-Sharh", english: "The Relief", verses: 8, type: "Meccan" },
+            { number: 95, name: "At-Tin", english: "The Fig", verses: 8, type: "Meccan" },
+            { number: 96, name: "Al-Alaq", english: "The Clot", verses: 19, type: "Meccan" },
+            { number: 97, name: "Al-Qadr", english: "The Power", verses: 5, type: "Meccan" },
+            { number: 98, name: "Al-Bayyinah", english: "The Clear Proof", verses: 8, type: "Medinan" },
+            { number: 99, name: "Az-Zalzalah", english: "The Earthquake", verses: 8, type: "Medinan" },
+            { number: 100, name: "Al-Adiyat", english: "The Courser", verses: 11, type: "Meccan" },
+            { number: 101, name: "Al-Qari'ah", english: "The Calamity", verses: 11, type: "Meccan" },
+            { number: 102, name: "At-Takathur", english: "The Rivalry in World Increase", verses: 8, type: "Meccan" },
+            { number: 103, name: "Al-Asr", english: "The Declining Day", verses: 3, type: "Meccan" },
+            { number: 104, name: "Al-Humazah", english: "The Traducer", verses: 9, type: "Meccan" },
+            { number: 105, name: "Al-Fil", english: "The Elephant", verses: 5, type: "Meccan" },
+            { number: 106, name: "Quraysh", english: "Quraysh", verses: 4, type: "Meccan" },
+            { number: 107, name: "Al-Ma'un", english: "The Small Kindnesses", verses: 7, type: "Meccan" },
+            { number: 108, name: "Al-Kawthar", english: "The Abundance", verses: 3, type: "Meccan" },
+            { number: 109, name: "Al-Kafirun", english: "The Disbelievers", verses: 6, type: "Meccan" },
+            { number: 110, name: "An-Nasr", english: "The Divine Support", verses: 3, type: "Medinan" },
+            { number: 111, name: "Al-Masad", english: "The Palm Fiber", verses: 5, type: "Meccan" },
+            { number: 112, name: "Al-Ikhlas", english: "The Sincerity", verses: 4, type: "Meccan" },
+            { number: 113, name: "Al-Falaq", english: "The Daybreak", verses: 5, type: "Meccan" },
+            { number: 114, name: "An-Nas", english: "The Mankind", verses: 6, type: "Meccan" }
+        ];
+
+        // Theme Initialization (Must match index.html logic to prevent flashing)
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        function renderSurahs(data) {
+            const grid = document.getElementById('surah-grid');
+            const noRes = document.getElementById('no-results');
+
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                noRes.classList.remove('hidden');
+                grid.classList.add('hidden');
+                return;
+            }
+
+            noRes.classList.add('hidden');
+            grid.classList.remove('hidden');
+
+            // IMPORTANT: In a real app, clicking these would likely go to a detail page
+            // e.g., /surah/1. For now, we point to index or a placeholder.
+            data.forEach(s => {
+                const card = `
+                    <a href="/surah/${s.number}" class="glass-card rounded-xl p-6 hover:border-brand-500 border border-transparent cursor-pointer transition-all hover:shadow-lg group flex flex-col h-full hover:-translate-y-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold group-hover:bg-brand-500 group-hover:text-white transition-colors border border-gray-200 dark:border-gray-700">
+                                ${s.number}
+                            </span>
+                            <span class="text-xs font-bold uppercase tracking-wider ${s.type === 'Meccan' ? 'text-gold-500 bg-gold-50 dark:bg-gold-900/10' : 'text-brand-500 bg-brand-50 dark:bg-brand-900/10'} px-2 py-1 rounded-md">
+                                ${s.type}
+                            </span>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-xl text-gray-800 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 mb-1 transition-colors font-arabic">
+                                ${s.name}
+                            </h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">${s.english}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex justify-between items-center text-xs text-gray-400">
+                            <span>${s.verses} Verses</span>
+                            <span class="group-hover:translate-x-1 transition-transform">View &rarr;</span>
+                        </div>
+                    </a>
+                `;
+                grid.insertAdjacentHTML('beforeend', card);
+            });
+        }
+
+        function filterSurahs() {
+            const query = document.getElementById('surah-filter').value.toLowerCase();
+            const filtered = surahList.filter(s =>
+                s.name.toLowerCase().includes(query) ||
+                s.english.toLowerCase().includes(query) ||
+                s.number.toString().includes(query)
+            );
+            renderSurahs(filtered);
+        }
+
+        // Initial Render
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSurahs(surahList);
+
+            // Listen for global theme toggle events if needed, 
+            // though the navbar handles the click.
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                });
+            }
+        });
+
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
